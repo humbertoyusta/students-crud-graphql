@@ -1,0 +1,21 @@
+type Mutation 
+{
+  createStudent(
+      firstname: String! @rules(apply: ["max:120"]), 
+      lastname: String! @rules(apply: ["max:120"]),
+      email: String! @rules(apply: ["email"]),
+      address: String!,
+      score: Float! @rules(apply: ["min:0", "numeric"]),
+  ): Student! @create
+
+  updateStudent(
+      id: ID!,
+      firstname: String @rules(apply: ["max:120"]), 
+      lastname: String @rules(apply: ["max:120"]),
+      email: String @rules(apply: ["email"]),
+      address: String,
+      score: Float @rules(apply: ["min:0", "numeric"]),
+  ): Student! @update
+
+  deleteStudent(id: ID!): Student @delete
+}

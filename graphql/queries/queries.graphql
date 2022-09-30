@@ -1,0 +1,7 @@
+type Query 
+{
+    students: [Student!]! @all
+
+    student(id: Int! @eq): Student @find
+}
+
