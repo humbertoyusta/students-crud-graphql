@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginUserRequest;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
@@ -25,5 +26,11 @@ class AuthController extends Controller
             'access_token' => $this->authService->login($request), 
             'token_type' => 'Bearer',
         ];
+    }
+
+    public function logout(Request $request)
+    {
+        $this->authService->logout($request);
+        return response(['message' => 'successfully log out'], Response::HTTP_OK);
     }
 }

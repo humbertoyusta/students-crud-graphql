@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Laravel\Sanctum\PersonalAccessToken;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AuthService 
 {
@@ -25,5 +27,12 @@ class AuthService
             throw new UnauthorizedHttpException('Invalid username or password');
 
         return $this->findOneByEmail($loginUserRequest->email)->createToken('accessToken')->plainTextToken;
+    }
+
+    public function logout(Request $request)
+    {
+        $accessToken = PersonalAccessToken::findToken($request->bearerToken());
+        
+        $accessToken->delete();
     }
 }
