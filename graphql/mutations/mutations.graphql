@@ -11,7 +11,7 @@ type Mutation
       address: String!,
 
       score: Float! @rules(apply: ["min:0", "numeric"]),
-  ): Student! @create
+  ): Student! @guard
 
   updateStudent
   (
@@ -26,7 +26,7 @@ type Mutation
       address: String,
       
       score: Float @rules(apply: ["min:0", "numeric"]),
-  ): Student! @update
+  ): Student @guard
 
-  deleteStudent(id: ID!): Student @delete
+  deleteStudent(id: ID!): Student @guard
 }

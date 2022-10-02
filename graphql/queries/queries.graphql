@@ -1,7 +1,7 @@
 type Query 
 {
-    students: [Student!]! @all
+    students: [Student!]! @guard
 
-    student(id: Int! @eq): Student @find
+    student(id: Int! @eq): Student @guard
 }
 
