@@ -21,6 +21,11 @@ class AuthService
         return User::where('email', $email)->first();
     }
 
+    /**
+     * @param LoginUserRequest $request
+     * @return string $accessToken the login access token of the user
+     * @throws UnauthorizedHttpException if email or password are incorrect
+     */
     public function login(LoginUserRequest $loginUserRequest) 
     {
         if (!Auth::attempt($loginUserRequest->only(['email', 'password'])))
@@ -29,6 +34,10 @@ class AuthService
         return $this->findOneByEmail($loginUserRequest->email)->createToken('accessToken')->plainTextToken;
     }
 
+    /**
+     * Removes the access token if valid
+     * @throws UnauthorizedHttpException if access token is invalid or there is no access token
+     */
     public function logout(Request $request)
     {
         $accessToken = PersonalAccessToken::findToken($request->bearerToken());

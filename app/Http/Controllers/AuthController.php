@@ -20,6 +20,11 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
+    /**
+     * @param LoginUserRequest $request
+     * @return array - ['access_token', 'token_type' => 'Bearer'] the access token
+     * @throws UnauthorizedHttpException if email or password are incorrect
+     */
     public function login(LoginUserRequest $request) 
     {
         return [
@@ -28,6 +33,11 @@ class AuthController extends Controller
         ];
     }
 
+    /**
+     * @return array ['message' => 'successfully log out']
+     * @status_code HTTP_OK
+     * @throws UnauthorizedHttpException if access token is invalid
+     */
     public function logout(Request $request)
     {
         $this->authService->logout($request);
