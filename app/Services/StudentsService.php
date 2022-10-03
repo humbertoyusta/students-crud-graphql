@@ -3,13 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\CustomException;
-use App\Http\Requests\StoreStudentRequest;
-use App\Http\Requests\UpdateStudentRequest;
 use App\Models\Student;
-use GraphQL\Executor\ExecutionResult;
-use Nuwave\Lighthouse\Events\EndExecution;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class StudentsService
 {
