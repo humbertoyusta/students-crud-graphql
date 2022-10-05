@@ -27,10 +27,10 @@ class AuthController extends Controller
      */
     public function login(LoginUserRequest $request) 
     {
-        return [
+        return response([
             'access_token' => $this->authService->login($request), 
             'token_type' => 'Bearer',
-        ];
+        ], Response::HTTP_CREATED);
     }
 
     /**

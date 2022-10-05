@@ -1,0 +1,3 @@
+php8.0 artisan migrate:rollback --env=testing
+php8.0 artisan migrate --env=testing
+php8.0 artisan test
