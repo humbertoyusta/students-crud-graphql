@@ -26,6 +26,9 @@ class GraphqlTest extends TestCase
         $this->bootRefreshesSchemaCache();
     }
 
+    /**
+     * @return $token the authorization token of a newly created user
+     */
     private function getToken()
     {
         \App\Models\User::factory()->create([
@@ -41,6 +44,7 @@ class GraphqlTest extends TestCase
     }
     
     /**
+     * Tests that you can not access to query students without auth
      * @depends Tests\Feature\LoginTest::testLoginOk
      */
     public function testQueryStudentsNeedsAuth ()
@@ -58,6 +62,7 @@ class GraphqlTest extends TestCase
     }
 
     /**
+     * Tests that you can access to query students with auth
      * @depends Tests\Feature\LoginTest::testLoginOk
      */
     public function testQueryStudentsAuthWorks ()
@@ -78,14 +83,17 @@ class GraphqlTest extends TestCase
     }
 
     /**
+     * Tests that query students returns all students with correct properties
      * @depends testQueryStudentsAuthWorks
      */
     public function testQueryStudentsOk ()
     {
+        // add 5 student to the database
         Student::factory(5)->create();
 
         $token = $this->getToken();
 
+        //make a query to get all students and all properties
         $response = $this->graphQL(/** @lang GraphQL */'
             query {
                 students {
@@ -126,14 +134,17 @@ class GraphqlTest extends TestCase
     }
 
     /**
+     * Tests that the proper error is given after making a query with wrong properties
      * @depends testQueryStudentsAuthWorks
      */
     public function testQueryStudentsWrongSchema ()
     {
+        // add one student to the database
         Student::factory(1)->create();
 
         $token = $this->getToken();
 
+        // make a wrong query (should be created_at instead of createdAt)
         $response = $this->graphQL(/** @lang GraphQL */'
             query {
                 students {
@@ -153,6 +164,7 @@ class GraphqlTest extends TestCase
      */
     public function testQueryStudentOk ()
     {
+        // add one student to the database
         Student::factory(1)->create();
 
         $token = $this->getToken();
@@ -222,11 +234,14 @@ class GraphqlTest extends TestCase
         $response->assertGraphQLErrorMessage('Not Found (404)');
     }
 
+    /**
+     * Tests that a student can be correctly created
+     */
     public function testCreateStudentOk ()
     {
-
         $token = $this->getToken();
 
+        // make a mutation query to create a student with all the data
         $response = $this->graphQL(/** @lang GraphQL */'
             mutation {
                 createStudent(
@@ -264,10 +279,14 @@ class GraphqlTest extends TestCase
         ]);
     }
 
+    /**
+     * Tests that the proper error is sent if the information is incomplete
+     */
     public function testCreateStudentIncomplete ()
     {
         $token = $this->getToken();
 
+        // make a mutation query without email address
         $response = $this->graphQL(/** @lang GraphQL */'
             mutation {
                 createStudent(
@@ -290,10 +309,14 @@ class GraphqlTest extends TestCase
         $response->assertGraphQLErrorCategory('graphql');
     }
 
+    /**
+     * Tests that a field can be updated correctly
+     */
     public function testUpdateStudentOk ()
     {
         $token = $this->getToken();
 
+        // add a student to the database
         Student::create([
             'firstname' => "a",
             'lastname' => "b",
@@ -302,6 +325,7 @@ class GraphqlTest extends TestCase
             'score' => 5,
         ]);
 
+        // update the firstname of the first student
         $response = $this->graphQL(/** @lang GraphQL */'
             mutation {
                 updateStudent(
@@ -336,10 +360,15 @@ class GraphqlTest extends TestCase
         ]);
     }
 
+    /**
+     * Tests that if a student email is updated to another email that is taken by another
+     * student it throws the proper error
+     */
     public function testUpdateStudentEmailConflict ()
     {
         $token = $this->getToken();
 
+        // Create a first student
         Student::create([
             'firstname' => "a",
             'lastname' => "b",
@@ -348,6 +377,7 @@ class GraphqlTest extends TestCase
             'score' => 5,
         ]);
 
+        // Create a second student
         Student::create([
             'firstname' => "a",
             'lastname' => "b",
@@ -356,6 +386,8 @@ class GraphqlTest extends TestCase
             'score' => 5,
         ]);
 
+        // Try to update the second student and change its email to
+        // the email of the first student
         $response = $this->graphQL(/** @lang GraphQL */'
             mutation {
                 updateStudent(
@@ -373,11 +405,15 @@ class GraphqlTest extends TestCase
         $response->assertGraphQLErrorMessage('Conflict (409)');
     }
 
-
+    /**
+     * Tests that if the email of an user is changed to that same email
+     * does not throw any error
+     */
     public function testUpdateStudentSameEmailOk ()
     {
         $token = $this->getToken();
 
+        // Create a student
         Student::create([
             'firstname' => 'a',
             'lastname' => 'b',
@@ -386,6 +422,7 @@ class GraphqlTest extends TestCase
             'score' => 5,
         ]);
 
+        // Change the email of the first user to that same email
         $response = $this->graphQL(/** @lang GraphQL */'
             mutation {
                 updateStudent(
@@ -404,10 +441,15 @@ class GraphqlTest extends TestCase
         $this->assertEquals($response['data']['updateStudent']['email'], "c@d");
     }
 
+    /**
+     * Tests that if a student that does not exist is trying ot be updated
+     * the proper error is thrown
+     */
     public function testUpdateStudentNotFound ()
     {
         $token = $this->getToken();
 
+        // try to update a non existing user
         $response = $this->graphQL(/** @lang GraphQL */'
             mutation {
                 updateStudent(
@@ -425,14 +467,19 @@ class GraphqlTest extends TestCase
         $response->assertGraphQLErrorMessage('Not Found (404)');
     }
 
+    /**
+     * Test that students can be deleted properly
+     */
     public function testDeleteStudentOk ()
     {
         $token = $this->getToken();
 
+        // Create 5 students
         Student::factory(5)->create();
 
         for ($id = 1; $id <= 5; $id ++)
         {
+            // delete the i-th student
             $response = $this->graphQL(/** @lang GraphQL */'
                 mutation ($id: ID!) {
                     deleteStudent(id: $id) {
@@ -448,9 +495,14 @@ class GraphqlTest extends TestCase
             $this->assertEquals($id, $response['data']['deleteStudent']['id']);
         }
 
+        // assert that all users were deleted and the database is empty
         $this->assertEquals(count(Student::all()), 0);
     }
 
+    /**
+     * Tests that if a user is going to be deleted but it does not exist
+     * the proper error is thrown
+     */
     public function testDeleteStudentNotFound()
     {
         $token = $this->getToken();
