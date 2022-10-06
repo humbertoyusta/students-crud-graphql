@@ -69,7 +69,7 @@ class StudentsService
     {
         $student = $this -> findOne($studentData['id']);
 
-        if ($studentData['email'])
+        if (array_key_exists('email', $studentData))
         {
             $studentWithSameEmail = $this -> findOneByEmail($studentData['email']);
             if ($studentWithSameEmail && $studentWithSameEmail->id != $studentData['id'])
