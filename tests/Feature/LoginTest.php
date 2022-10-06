@@ -20,6 +20,10 @@ class LoginTest extends TestCase
         'password' => 'a',
     ];
 
+    /**
+     * set up
+     * creates a user to the database
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -34,6 +38,7 @@ class LoginTest extends TestCase
     }
 
     /**
+     * Tests that it is possible to lig in and get a token
      */
     public function testLoginOk()
     {
@@ -45,6 +50,7 @@ class LoginTest extends TestCase
     }
 
     /**
+     * Tests that if you log in with wrong password HTTP_UNAUTHORIZED is thrown
      */
     public function testLoginWrongPassword()
     {
@@ -57,6 +63,7 @@ class LoginTest extends TestCase
     }
 
     /**
+     * Tests that it is possible to log out correctly
      * @depends testLoginOk
      */
     public function testLogoutOk()
@@ -71,6 +78,7 @@ class LoginTest extends TestCase
     }
 
     /**
+     * Tests that if you try to logout without token HTTP_UNAUTHORIZED is thrown
      * @depends testLoginOk
      */
     public function testLogoutInvalidToken()
